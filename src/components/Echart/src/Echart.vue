@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { EChartsOption } from 'echarts'
 import echarts from '@/plugins/echarts'
+import { GraphChart } from 'echarts/charts'
 import { debounce } from 'lodash-es'
 import 'echarts-wordcloud'
 import { propTypes } from '@/utils/propTypes'
@@ -9,6 +10,7 @@ import { useAppStore } from '@/store/modules/app'
 import { isString } from '@/utils/is'
 import { useDesign } from '@/hooks/web/useDesign'
 
+echarts.use([GraphChart])
 const { getPrefixCls, variables } = useDesign()
 
 const prefixCls = getPrefixCls('echart')
@@ -20,8 +22,8 @@ const props = defineProps({
     type: Object as PropType<EChartsOption>,
     required: true
   },
-  width: propTypes.oneOfType([Number, String]).def(''),
-  height: propTypes.oneOfType([Number, String]).def('500px')
+  width: propTypes.oneOfType([Number, String]).def('1600px'),
+  height: propTypes.oneOfType([Number, String]).def('800px')
 })
 
 const isDark = computed(() => appStore.getIsDark)

@@ -57,6 +57,9 @@ body {
   }
 }
 
+canvas {
+  display: block;
+}
 .@{prefix-cls}-grey-mode {
   filter: grayscale(100%);
 }

@@ -16,7 +16,7 @@ import { FormSchema } from '@/types/form'
 
 const { required } = useValidator()
 
-const emit = defineEmits(['to-register'])
+// const emit = defineEmits(['to-register'])
 
 const appStore = useAppStore()
 
@@ -79,14 +79,14 @@ const schema = reactive<FormSchema[]>([
       span: 24
     }
   },
-  {
-    field: 'other',
-    component: 'Divider',
-    label: t('login.otherLogin'),
-    componentProps: {
-      contentPosition: 'center'
-    }
-  },
+  // {
+  //   field: 'other',
+  //   component: 'Divider',
+  //   label: t('login.otherLogin'),
+  //   componentProps: {
+  //     contentPosition: 'center'
+  //   }
+  // },
   {
     field: 'otherIcon',
     colProps: {
@@ -95,7 +95,7 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 
-const iconSize = 30
+// const iconSize = 30
 
 const remember = ref(false)
 
@@ -103,7 +103,7 @@ const { register, elFormRef, methods } = useForm()
 
 const loading = ref(false)
 
-const iconColor = '#999'
+// const iconColor = '#999'
 
 const redirect = ref<string>('')
 
@@ -179,9 +179,6 @@ const getRole = async () => {
 }
 
 // 去注册页面
-const toRegister = () => {
-  emit('to-register')
-}
 </script>
 
 <template>
@@ -195,7 +192,7 @@ const toRegister = () => {
     @register="register"
   >
     <template #title>
-      <h2 class="text-2xl font-bold text-center w-[100%]">{{ t('login.login') }}</h2>
+      <h2 class="text-2xl font-bold text-center w-[100%]">THREE.DEMO</h2>
     </template>
 
     <template #tool>
@@ -211,14 +208,14 @@ const toRegister = () => {
           {{ t('login.login') }}
         </ElButton>
       </div>
-      <div class="w-[100%] mt-15px">
+      <!-- <div class="w-[100%] mt-15px">
         <ElButton class="w-[100%]" @click="toRegister">
           {{ t('login.register') }}
         </ElButton>
-      </div>
+      </div> -->
     </template>
 
-    <template #otherIcon>
+    <!-- <template #otherIcon>
       <div class="flex justify-between w-[100%]">
         <Icon
           icon="ant-design:github-filled"
@@ -245,7 +242,7 @@ const toRegister = () => {
           class="cursor-pointer anticon"
         />
       </div>
-    </template>
+    </template> -->
   </Form>
 </template>
 
