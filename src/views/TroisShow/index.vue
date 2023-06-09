@@ -28,28 +28,40 @@ onMounted(() => {
 
 <template>
   <!-- <div class="box123">123</div> -->
-  <Renderer
-    ref="renderer"
-    resize
-    :orbit-ctrl="{ enableDamping: true, dampingFactor: 0.05 }"
-    pointer
-    @click="randomColors"
-  >
-    <Camera :position="{ z: 200 }" />
-    <Scene>
-      <PointLight ref="light" color="#FFC0C0" />
+  <div style="width: 100%; height: 800px">
+    <Renderer
+      ref="renderer"
+      resize
+      :orbit-ctrl="{ enableDamping: true, dampingFactor: 0.05 }"
+      pointer
+      @click="randomColors"
+    >
+      <Camera :position="{ z: 200 }" />
+      <Scene>
+        <PointLight ref="light" color="#FFC0C0" />
 
-      <InstancedMesh ref="imesh" :count="NUM_INSTANCES">
-        <DodecahedronGeometry :radius="5" />
-        <SubSurfaceMaterial :props="{ vertexColors: true }" />
-      </InstancedMesh>
-    </Scene>
-    <EffectComposer>
-      <RenderPass />
-      <UnrealBloomPass :strength="0.5" />
-      <FXAAPass />
-    </EffectComposer>
-  </Renderer>
+        <InstancedMesh ref="imesh" :count="NUM_INSTANCES">
+          <DodecahedronGeometry :radius="5" />
+          <SubSurfaceMaterial :props="{ vertexColors: true }" />
+        </InstancedMesh>
+      </Scene>
+      <EffectComposer>
+        <RenderPass />
+        <UnrealBloomPass :strength="0.5" />
+        <FXAAPass />
+      </EffectComposer>
+    </Renderer>
+  </div>
+  <div>
+    <div style="width=100px,display: flex">
+      <div>模块数</div>
+      <el-input v-model="NUM_INSTANCES" @blur="reModelNum" />
+    </div>
+    <div style="width=100px,display: flex">
+      <div>吸引速度</div>
+      <el-input v-model="speed" @blur="reModelNum" />
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -69,8 +81,14 @@ import {
   UnrealBloomPass
 } from 'troisjs'
 import chroma from 'chroma-js'
+
+const reModelNum = () => {
+  init()
+}
+
 const { randFloat: rnd, randFloatSpread: rndFS } = MathUtils
 const NUM_INSTANCES = ref(2000)
+const speed = ref(0.0025)
 const instances = ref([])
 const cscale = ref(chroma.scale(['#dd3e1b', '#0b509c']))
 const target = new Vector3()
@@ -81,7 +99,7 @@ for (let i = 0; i < NUM_INSTANCES.value; i++) {
     position: new Vector3(rndFS(200), rndFS(200), rndFS(200)),
     scale: rnd(0.2, 1),
     velocity: new Vector3(rndFS(2), rndFS(2), rndFS(2)),
-    attraction: 0.0025 + rnd(0, 0.01),
+    attraction: speed.value + rnd(0, 0.01),
     vlimit: 0.3 + rnd(0, 0.2)
   })
 }

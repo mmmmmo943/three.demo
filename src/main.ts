@@ -24,6 +24,11 @@ import '@/plugins/animate.css'
 
 // 路由
 import { setupRouter } from './router'
+//quill
+import { QuillEditor } from '@vueup/vue-quill'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 // 权限
 import { setupPermission } from './directives'
@@ -33,6 +38,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import './permission'
+import { zhCn } from 'element-plus/es/locale'
 
 // 创建实例
 const setupAll = async () => {
@@ -50,7 +56,9 @@ const setupAll = async () => {
 
   setupPermission(app)
 
-  app.mount('#app')
+  app.component('QuillEditor', QuillEditor)
+
+  app.use(ElementPlus).mount('#app')
 }
 
 setupAll()

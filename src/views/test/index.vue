@@ -2,13 +2,21 @@
   <div>
     <button @click="createDocument">Create Document</button>
   </div>
+  <div>
+    <!-- <QuillEditor theme="snow" :toolbar="toolbarOptions" v-model:content="quillContent" contentType="Delta"
+      :modules="sizeModule" /> -->
+  </div>
+  <div>
+    <el-button @click="buttonClick">button</el-button>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-// import { saveAs } from 'file-saver'
+
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import ImageResize from 'quill-image-resize-module--fix-imports-error'
 import * as docx from 'docx'
-import imagePath from '../../assets/imgs/avatar.jpg'
 import fileFace1 from '../../assets/imgs/fileFace.png'
 import fileFace2 from '../../assets/imgs/fileFace2.jpeg'
 import headerPic from '../../assets/imgs/headerPic.png'
@@ -32,20 +40,76 @@ import {
   BorderStyle
 } from 'docx'
 
+const quillContent = ref<any>('????')
+const buttonClick = async () => {
+  console.log('quillContent', quillContent.value)
+}
 const documentName = ref('My Document')
 // const documentContent = ref('Hello, world!')
 
 const checkedBox = '☑'
 const uncheckedBox = '☐'
 // 图片处理方法
-const imageMethod = async (image: any) => {
+const imageMethod = async (image: string) => {
   let response = await fetch(image)
   let arrayBuffer = await response.arrayBuffer()
+  let k: HTMLImageElement = await getImageFromUrl(image)
+  let widthCompareHeight = k.width / k.height
   let imageBytes = new Uint8Array(arrayBuffer)
-  return imageBytes
+  // let size = await getImageFromUrl(image)
+  return { data: imageBytes, width: k.width, height: k.height, ratio: widthCompareHeight }
+}
+
+const getImageFromUrl = async (src: string): Promise<HTMLImageElement> => {
+  let pic = new Image()
+  pic.src = src
+  const promise = new Promise<HTMLImageElement>(function (resolve) {
+    // ... some code
+    pic.onload = () => {
+      resolve(pic)
+    }
+  })
+  return promise
+}
+
+const contentBox = ref<docx.ParagraphChild[]>([])
+const imageInsert = (content: any) => {
+  if (content.ops) {
+    content.ops.forEach(async (item: any) => {
+      if (item.insert.image) {
+        if (item.attributes) {
+          const imageRun = new ImageRun({
+            data: (await imageMethod(item.insert.image)).data,
+            transformation: {
+              width: item.attributes.width * 1,
+              height: item.attributes.height * 1
+            }
+          })
+          contentBox.value.push(imageRun)
+        } else {
+          const imageRun = new ImageRun({
+            data: (await imageMethod(item.insert.image)).data,
+            transformation: {
+              width: (await imageMethod(item.insert.image)).width,
+              height: (await imageMethod(item.insert.image)).height
+            }
+          })
+          contentBox.value.push(imageRun)
+        }
+      }
+      if (item.insert && !item.insert.image) {
+        if (item.attributes) {
+          // const textRun = new TextRun({})
+        }
+      }
+    })
+  }
 }
 // 创建用于创建文档的方法
 const createDocument = async () => {
+  console.log('??')
+  contentBox.value.splice(0)
+  imageInsert(quillContent.value)
   const paragraph = new Paragraph({
     text: 'Hello World',
     heading: HeadingLevel.HEADING_1,
@@ -169,9 +233,17 @@ const createDocument = async () => {
                 children: [
                   new TextRun(`${checkedBox} 选项 1 `),
                   new TextRun('    '),
-                  new TextRun(`${uncheckedBox} 选项 2`)
+                  new TextRun(`${uncheckedBox} 选项 2`),
+                  new Paragraph({
+                    text: 'Header #124556',
+                    heading: HeadingLevel.HEADING_1,
+                    pageBreakBefore: true,
+                    alignment: AlignmentType.CENTER,
+                    style: 'MySpectacularStyle'
+                  })
                 ],
-                alignment: AlignmentType.CENTER
+                alignment: AlignmentType.CENTER,
+                style: 'MySpectacularStyle2'
               })
             ]
           })
@@ -315,10 +387,6 @@ const createDocument = async () => {
     ]
   })
 
-  const response = await fetch(imagePath)
-  const arrayBuffer = await response.arrayBuffer()
-  const imageBytes = new Uint8Array(arrayBuffer)
-
   // 创建一个新的Document对象
 
   const doc = new docx.Document({
@@ -334,7 +402,7 @@ const createDocument = async () => {
           next: 'Heading1',
           quickFormat: true,
           run: {
-            italics: true,
+            // italics: true,
             color: '990000'
           }
         },
@@ -346,7 +414,8 @@ const createDocument = async () => {
           quickFormat: true,
           run: {
             italics: true,
-            color: '930000'
+            color: '930000',
+            bold: true
           }
         }
       ]
@@ -358,10 +427,10 @@ const createDocument = async () => {
             alignment: AlignmentType.RIGHT,
             children: [
               new ImageRun({
-                data: await imageMethod(fileFace2),
+                data: (await imageMethod(fileFace2)).data,
                 transformation: {
-                  width: 400,
-                  height: 100
+                  width: (await imageMethod(fileFace2)).width,
+                  height: (await imageMethod(fileFace2)).height
                 }
               })
             ]
@@ -370,10 +439,10 @@ const createDocument = async () => {
             alignment: AlignmentType.RIGHT,
             children: [
               new ImageRun({
-                data: await imageMethod(headerPic),
+                data: (await imageMethod(headerPic)).data,
                 transformation: {
-                  width: 350,
-                  height: 40
+                  width: (await imageMethod(headerPic)).width,
+                  height: (await imageMethod(headerPic)).height
                 }
               })
             ]
@@ -385,10 +454,10 @@ const createDocument = async () => {
             alignment: AlignmentType.CENTER,
             children: [
               new ImageRun({
-                data: await imageMethod(fileFace1),
+                data: (await imageMethod(fileFace1)).data,
                 transformation: {
-                  width: 1000,
-                  height: 400
+                  width: (await imageMethod(fileFace1)).width,
+                  height: (await imageMethod(fileFace1)).height
                 }
               })
             ]
@@ -455,10 +524,10 @@ const createDocument = async () => {
                             alignment: AlignmentType.CENTER,
                             children: [
                               new ImageRun({
-                                data: await imageMethod(headerPic),
+                                data: (await imageMethod(headerPic)).data,
                                 transformation: {
-                                  width: 350,
-                                  height: 40
+                                  width: (await imageMethod(headerPic)).width,
+                                  height: (await imageMethod(headerPic)).height
                                 }
                               })
                             ]
@@ -556,15 +625,7 @@ const createDocument = async () => {
           paragraph,
           table,
           new Paragraph({
-            children: [
-              new ImageRun({
-                data: imageBytes,
-                transformation: {
-                  width: 100,
-                  height: 100
-                }
-              })
-            ]
+            children: contentBox.value as docx.ParagraphChild[]
           }),
           new Paragraph({
             text: 'Header #124556',
@@ -589,7 +650,7 @@ const createDocument = async () => {
             style: 'MySpectacularStyle2'
           }),
 
-          new Paragraph("I'm a another text very nicely written.'"),
+          // new Paragraph(quillContent.value.ops[1]),
           new Paragraph({
             text: 'My Spectacular Style #1',
             style: 'MySpectacularStyle'
